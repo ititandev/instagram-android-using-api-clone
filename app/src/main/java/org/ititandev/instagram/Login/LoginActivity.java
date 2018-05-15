@@ -3,7 +3,6 @@ package org.ititandev.instagram.Login;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -14,15 +13,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import org.ititandev.instagram.Home.HomeActivity;
 import org.ititandev.instagram.R;
+import org.ititandev.instagram.service.HttpService;
+
+import cz.msebera.android.httpclient.Header;
 
 /**
  * Created by User on 6/19/2017.
@@ -57,18 +55,17 @@ public class LoginActivity extends AppCompatActivity {
         mPleaseWait.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.GONE);
 
-        setupFirebaseAuth();
+        //setupAuth();
         init();
 
     }
 
-    private boolean isStringNull(String string){
+    private boolean isStringNull(String string) {
         Log.d(TAG, "isStringNull: checking string if null.");
 
-        if(string.equals("")){
+        if (string.equals("")) {
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
@@ -77,124 +74,113 @@ public class LoginActivity extends AppCompatActivity {
     ------------------------------------ Firebase ---------------------------------------------
      */
 
-     private void init(){
+    private void init() {
 
-         //initialize the button for logging in
-         Button btnLogin = (Button) findViewById(R.id.btn_login);
-         btnLogin.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View v) {
-                 Log.d(TAG, "onClick: attempting to log in.");
+        //initialize the button for logging in
+        Button btnLogin = (Button) findViewById(R.id.btn_login);
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: attempting to log in.");
 
-                 String email = mEmail.getText().toString();
-                 String password = mPassword.getText().toString();
+                String email = mEmail.getText().toString();
+                String password = mPassword.getText().toString();
 
-                 if(isStringNull(email) && isStringNull(password)){
-                     Toast.makeText(mContext, "You must fill out all the fields", Toast.LENGTH_SHORT).show();
-                 }else{
-                     mProgressBar.setVisibility(View.VISIBLE);
-                     mPleaseWait.setVisibility(View.VISIBLE);
+                if (isStringNull(email) && isStringNull(password)) {
+                    Toast.makeText(mContext, "You must fill out all the fields", Toast.LENGTH_SHORT).show();
+                } else {
+                    mProgressBar.setVisibility(View.VISIBLE);
+                    mPleaseWait.setVisibility(View.VISIBLE);
+                    login(email, password);
 
-                     mAuth.signInWithEmailAndPassword(email, password)
-                             .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                                 @Override
-                                 public void onComplete(@NonNull Task<AuthResult> task) {
-                                     Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
-                                     FirebaseUser user = mAuth.getCurrentUser();
+//                    mAuth.signInWithEmailAndPassword(email, password)
+//                            .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<AuthResult> task) {
+//                                    Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
+//                                    FirebaseUser user = mAuth.getCurrentUser();
+//
+//                                    // If sign in fails, display a message to the user. If sign in succeeds
+//                                    // the auth state listener will be notified and logic to handle the
+//                                    // signed in user can be handled in the listener.
+//                                    if (!task.isSuccessful()) {
+//                                        Log.w(TAG, "signInWithEmail:failed", task.getException());
+//
+//                                        Toast.makeText(LoginActivity.this, getString(R.string.auth_failed),
+//                                                Toast.LENGTH_SHORT).show();
+                                        mProgressBar.setVisibility(View.GONE);
+                                        mPleaseWait.setVisibility(View.GONE);
+//                                    } else {
+//                                        try {
+//                                            if (CHECK_IF_VERIFIED) {
+//                                                if (user.isEmailVerified()) {
+//                                                    Log.d(TAG, "onComplete: success. email is verified.");
+//                                                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+//                                                    startActivity(intent);
+//                                                } else {
+//                                                    Toast.makeText(mContext, "Email is not verified \n check your email inbox.", Toast.LENGTH_SHORT).show();
+//                                                    mProgressBar.setVisibility(View.GONE);
+//                                                    mPleaseWait.setVisibility(View.GONE);
+//                                                    mAuth.signOut();
+//                                                }
+//                                            } else {
+//                                                Log.d(TAG, "onComplete: success. email is verified.");
+//                                                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+//                                                startActivity(intent);
+//                                            }
+//
+//                                        } catch (NullPointerException e) {
+//                                            Log.e(TAG, "onComplete: NullPointerException: " + e.getMessage());
+//                                        }
+//                                    }
+//
+//                                    // ...
+//                                }
+//                            });
 
-                                     // If sign in fails, display a message to the user. If sign in succeeds
-                                     // the auth state listener will be notified and logic to handle the
-                                     // signed in user can be handled in the listener.
-                                     if (!task.isSuccessful()) {
-                                         Log.w(TAG, "signInWithEmail:failed", task.getException());
 
-                                         Toast.makeText(LoginActivity.this, getString(R.string.auth_failed),
-                                                 Toast.LENGTH_SHORT).show();
-                                         mProgressBar.setVisibility(View.GONE);
-                                         mPleaseWait.setVisibility(View.GONE);
-                                     }
-                                     else{
-                                         try{
-                                             if(CHECK_IF_VERIFIED){
-                                                 if(user.isEmailVerified()){
-                                                     Log.d(TAG, "onComplete: success. email is verified.");
-                                                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                                                     startActivity(intent);
-                                                 }else{
-                                                     Toast.makeText(mContext, "Email is not verified \n check your email inbox.", Toast.LENGTH_SHORT).show();
-                                                     mProgressBar.setVisibility(View.GONE);
-                                                     mPleaseWait.setVisibility(View.GONE);
-                                                     mAuth.signOut();
-                                                 }
-                                             }
-                                             else{
-                                                 Log.d(TAG, "onComplete: success. email is verified.");
-                                                 Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                                                 startActivity(intent);
-                                             }
+                }
 
-                                         }catch (NullPointerException e){
-                                             Log.e(TAG, "onComplete: NullPointerException: " + e.getMessage() );
-                                         }
-                                     }
+            }
+        });
 
-                                     // ...
-                                 }
-                             });
-                 }
 
-             }
-         });
+        //SignUp
+        TextView linkSignUp = (TextView) findViewById(R.id.link_signup);
+        linkSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: navigating to register screen");
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
+            }
+        });
 
-         TextView linkSignUp = (TextView) findViewById(R.id.link_signup);
-         linkSignUp.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View v) {
-                 Log.d(TAG, "onClick: navigating to register screen");
-                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                 startActivity(intent);
-             }
-         });
-
-         /*
-         If the user is logged in then navigate to HomeActivity and call 'finish()'
-          */
-         if(mAuth.getCurrentUser() != null){
-             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-             startActivity(intent);
-             finish();
-         }
-     }
+        // Nếu có người đã đăng nhập, refresh token và chuyển home
+//        if (mAuth.getCurrentUser() != null) {
+//        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+//        startActivity(intent);
+//        finish();
+//        }
+    }
 
     /**
      * Setup the firebase auth object
      */
-    private void setupFirebaseAuth(){
-        Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
+    private void setupAuth() {
+        Log.d(TAG, "setupAuth: setting up firebase auth.");
+//        SharedPreferences sharedPreferences = getSharedPreferences("ititandev", Context.MODE_PRIVATE);
+//        SharedPreferences.Editor editor = sharedPreferences.edit();
+//        sharedPreferences.getBoolean("logined", false);
+//        sharedPreferences.getString("username", "");
+//        sharedPreferences.getString("token", "");
 
-        mAuth = FirebaseAuth.getInstance();
-
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-
-                if (user != null) {
-                    // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
-                }
-                // ...
-            }
-        };
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
+//        mAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override
@@ -203,6 +189,21 @@ public class LoginActivity extends AppCompatActivity {
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
+    }
+
+    public void login(String username, String password) {
+        String requestLogin = "{\"username\": \"" + username + "\",\"password\": \"" + password + "\"}";
+        HttpService.post_text("login", requestLogin, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Log.v("Auth Token", headers[8].toString().substring(15, headers[8].toString().length()));
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                Log.e("Auth Token failure", String.valueOf(statusCode));
+            }
+        });
     }
 }
 

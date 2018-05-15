@@ -21,6 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.googlecode.mp4parser.authoring.Edit;
 
 import org.ititandev.instagram.R;
 import org.ititandev.instagram.Utils.FirebaseMethods;
@@ -35,8 +36,8 @@ public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "RegisterActivity";
 
     private Context mContext;
-    private String email, username, password;
-    private EditText mEmail, mPassword, mUsername;
+    private String email, username, password, name;
+    private EditText mEmail, mPassword, mUsername, mName;
     private TextView loadingPleaseWait;
     private Button btnRegister;
     private ProgressBar mProgressBar;
@@ -71,8 +72,9 @@ public class RegisterActivity extends AppCompatActivity {
                 email = mEmail.getText().toString();
                 username = mUsername.getText().toString();
                 password = mPassword.getText().toString();
+                name = mName.getText().toString();
 
-                if(checkInputs(email, username, password)){
+                if(checkInputs(email, username, password, name)){
                     mProgressBar.setVisibility(View.VISIBLE);
                     loadingPleaseWait.setVisibility(View.VISIBLE);
 
@@ -82,9 +84,9 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private boolean checkInputs(String email, String username, String password){
+    private boolean checkInputs(String email, String username, String password, String name){
         Log.d(TAG, "checkInputs: checking inputs for null values.");
-        if(email.equals("") || username.equals("") || password.equals("")){
+        if(email.equals("") || username.equals("") || password.equals("") || name.equals("")){
             Toast.makeText(mContext, "All fields must be filled out.", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -97,6 +99,7 @@ public class RegisterActivity extends AppCompatActivity {
         Log.d(TAG, "initWidgets: Initializing Widgets.");
         mEmail = (EditText) findViewById(R.id.input_email);
         mUsername = (EditText) findViewById(R.id.input_username);
+        mName = (EditText) findViewById(R.id.input_name);
         btnRegister = (Button) findViewById(R.id.btn_register);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         loadingPleaseWait = (TextView) findViewById(R.id.loadingPleaseWait);
@@ -105,17 +108,6 @@ public class RegisterActivity extends AppCompatActivity {
         mProgressBar.setVisibility(View.GONE);
         loadingPleaseWait.setVisibility(View.GONE);
 
-    }
-
-    private boolean isStringNull(String string){
-        Log.d(TAG, "isStringNull: checking string if null.");
-
-        if(string.equals("")){
-            return true;
-        }
-        else{
-            return false;
-        }
     }
 
      /*
