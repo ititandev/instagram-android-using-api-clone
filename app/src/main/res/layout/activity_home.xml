@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.ititandev.instagram.Home.HomeActivity">
+    tools:context="org.ititandev.instagram.home.HomeActivity">
 
 
     <FrameLayout
@@ -26,7 +26,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/relLayout1">
-
             <include layout="@layout/layout_top_tabs"/>
 
         </RelativeLayout>
@@ -39,8 +38,6 @@
             android:layout_below="@+id/relLayout1">
 
             <include layout="@layout/layout_center_viewpager"/>
-
-
         </RelativeLayout>
 
 
@@ -49,6 +46,5 @@
 
 
     </RelativeLayout>
-
 
 </android.support.design.widget.CoordinatorLayout>

@@ -21,20 +21,20 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Home.HomeActivity"
+            android:name=".home.HomeActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleInstance">
 
         </activity>
-        <activity android:name=".Likes.LikesActivity"
+        <activity android:name=".like.LikesActivity"
                   android:launchMode="singleInstance"/>
-        <activity android:name=".Profile.ProfileActivity"
+        <activity android:name=".profile.ProfileActivity"
                   android:launchMode="singleInstance"/>
-        <activity android:name=".Share.ShareActivity"
+        <activity android:name=".share.ShareActivity"
                   android:launchMode="singleInstance"/>
-        <activity android:name=".Share.NextActivity"
+        <activity android:name=".share.NextActivity"
                   android:launchMode="singleInstance"/>
-        <activity android:name=".Login.LoginActivity"
+        <activity android:name=".login.LoginActivity"
                   android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -42,9 +42,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".Profile.AccountSettingsActivity"
+        <activity android:name=".profile.AccountSettingsActivity"
                   android:launchMode="singleInstance"/>
-        <activity android:name=".Login.RegisterActivity"
+        <activity android:name=".login.RegisterActivity"
                   android:launchMode="singleInstance"/>
         <activity android:name=".opengl.OpenGLES10Activity"
                   android:launchMode="singleInstance"
@@ -53,7 +53,7 @@
                   android:launchMode="singleInstance"
                   android:screenOrientation="portrait"/>
         <activity
-            android:name=".Search.SearchActivity"
+            android:name=".search.SearchActivity"
             android:windowSoftInputMode="adjustNothing"
             android:launchMode="singleInstance">
 

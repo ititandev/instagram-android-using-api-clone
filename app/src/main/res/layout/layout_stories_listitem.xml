@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             >
 
-            <org.ititandev.instagram.Utils.TouchableRelativeLayout
+            <org.ititandev.instagram.util.TouchableRelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
@@ -38,7 +38,7 @@
                         android:id="@+id/image"
                         android:src="@mipmap/ic_launcher"/>
 
-            </org.ititandev.instagram.Utils.TouchableRelativeLayout>
+            </org.ititandev.instagram.util.TouchableRelativeLayout>
 
             <ProgressBar
                 android:layout_width="70dp"

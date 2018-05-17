@@ -38,14 +38,14 @@
         android:id="@+id/progressBar"/>
 
     <TextView
+        android:id="@+id/tvSigningOut"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="167dp"
         android:text="Signing Out..."
-        android:textSize="20sp"
-        android:layout_alignBottom="@+id/progressBar"
-        android:layout_alignRight="@+id/progressBar"
-        android:layout_alignLeft="@+id/progressBar"
         android:textColor="@color/black"
-        android:id="@+id/tvSigningOut"/>
+        android:textSize="20sp" />
 
 </RelativeLayout>

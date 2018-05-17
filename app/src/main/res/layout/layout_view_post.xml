@@ -53,7 +53,7 @@
 
             </RelativeLayout>
 
-            <org.ititandev.instagram.Utils.SquareImageView
+            <org.ititandev.instagram.util.SquareImageView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/post_image"

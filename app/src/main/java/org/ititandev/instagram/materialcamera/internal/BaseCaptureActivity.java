@@ -47,9 +47,9 @@ import java.util.List;
 import java.util.Locale;
 
 import org.ititandev.instagram.R;
-import org.ititandev.instagram.Utils.FilePaths;
-import org.ititandev.instagram.Utils.ImageManager;
-import org.ititandev.instagram.Utils.RotateBitmap;
+import org.ititandev.instagram.util.FilePaths;
+import org.ititandev.instagram.util.ImageManager;
+import org.ititandev.instagram.util.RotateBitmap;
 import org.ititandev.instagram.materialcamera.ICallback;
 import org.ititandev.instagram.materialcamera.MaterialCamera;
 import org.ititandev.instagram.materialcamera.TimeLimitReachedException;

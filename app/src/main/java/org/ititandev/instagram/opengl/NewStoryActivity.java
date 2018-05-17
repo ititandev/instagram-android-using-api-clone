@@ -12,7 +12,7 @@ import android.widget.Toast;
 import java.io.File;
 
 import org.ititandev.instagram.R;
-import org.ititandev.instagram.Utils.FilePaths;
+import org.ititandev.instagram.util.FilePaths;
 import org.ititandev.instagram.materialcamera.MaterialCamera;
 
 

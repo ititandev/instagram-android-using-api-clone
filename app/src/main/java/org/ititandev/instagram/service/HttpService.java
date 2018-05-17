@@ -8,20 +8,30 @@ import cz.msebera.android.httpclient.entity.ByteArrayEntity;
 
 public class HttpService {
 
-    private static final String BASE_URL = "http://vre.hcmut.edu.vn/instagram/";
+    private static final String BASE_URL = "http://vre.hcmut.edu.vn/instagram";
+//    private static final String BASE_URL = "http://192.168.100.14:8081";
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.removeHeader("Authorization");
         client.get(getAbsoluteUrl(url), params, responseHandler);
     }
 
     public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.removeHeader("Authorization");
         client.post(getAbsoluteUrl(url), params, responseHandler);
     }
 
     public static void post_text(String url, String requestBody, AsyncHttpResponseHandler responseHandler) {
+        client.removeHeader("Authorization");
         ByteArrayEntity requestText = new ByteArrayEntity(requestBody.getBytes());
+        client.post(null, getAbsoluteUrl(url), requestText, "application/json", responseHandler);
+    }
+
+    public static void post_header(String url, String token, AsyncHttpResponseHandler responseHandler) {
+        client.addHeader("Authorization", token);
+        ByteArrayEntity requestText = new ByteArrayEntity("".getBytes());
         client.post(null, getAbsoluteUrl(url), requestText, "application/json", responseHandler);
     }
 

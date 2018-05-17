@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import org.ititandev.instagram.Home.HomeActivity;
+import org.ititandev.instagram.home.HomeActivity;
 import org.ititandev.instagram.R;
 
 
