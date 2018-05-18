@@ -132,11 +132,13 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 mProgressBar.setVisibility(View.GONE);
-                Log.e(TAG, "Auth Token failure :" + String.valueOf(statusCode));
-                Log.e(TAG, "errorResponse :" + errorResponse.toString());
+                if (statusCode == 0)
+                    Toast.makeText(mContext, "Check your internet connection", Toast.LENGTH_LONG).show();
+                Log.e(TAG, "onFailure login statusCode:" + String.valueOf(statusCode));
                 try {
+                    Log.e(TAG, "onFailure login errorResponse :" + errorResponse.toString());
                     Toast.makeText(mContext, errorResponse.get("message").toString(), Toast.LENGTH_LONG).show();
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -145,8 +147,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, String jsonResponse, Throwable throwable) {
                 mProgressBar.setVisibility(View.GONE);
-                Log.v(TAG, "jsonResponse :" + jsonResponse);
-                Log.v(TAG, "statusCode :" + String.valueOf(statusCode));
+                Log.v(TAG, "onFailure login String jsonResponse :" + jsonResponse);
+                Log.v(TAG, "onFailure login statusCode :" + String.valueOf(statusCode));
                 if (statusCode == 200) {
                     if (Boolean.valueOf(jsonResponse)) {
                         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -190,15 +192,15 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 mProgressBar.setVisibility(View.GONE);
-                Log.e(TAG, "onFailure: Refresh token statusCode :" + String.valueOf(statusCode));
-                Log.e(TAG, "onFailure: errorResponse :" + errorResponse.toString());
-                Log.e(TAG, "token: " + token);
                 editor.clear();
                 editor.commit();
+                Log.e(TAG, "onFailure: Refresh statusCode :" + String.valueOf(statusCode));
+                Log.e(TAG, "token: " + token);
                 mUsername.setText(username);
                 try {
+                    Log.e(TAG, "onFailure: refresh errorResponse :" + errorResponse.toString());
                     Toast.makeText(mContext, errorResponse.get("message").toString(), Toast.LENGTH_LONG).show();
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -206,11 +208,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, String jsonResponse, Throwable throwable) {
                 mProgressBar.setVisibility(View.GONE);
-                Log.v(TAG, "onFailure: String jsonResponse :" + jsonResponse);
-                Log.v(TAG, "onFailure: statusCode :" + String.valueOf(statusCode));
+                editor.clear();
+                Log.v(TAG, "onFailure: refresh String jsonResponse :" + jsonResponse);
+                Log.v(TAG, "onFailure: refresh statusCode :" + String.valueOf(statusCode));
                 if (statusCode == 200) {
                     if (Boolean.valueOf(jsonResponse)) {
-                        editor.clear();
                         editor.putString("username", username);
                         try {
                             for (int i = 0; i < 15; i++) {
@@ -223,21 +225,18 @@ public class LoginActivity extends AppCompatActivity {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        editor.commit();
                         Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                         startActivity(intent);
                         finish();
                     } else {
                         Toast.makeText(mContext, "Email is not verified\nCheck your email inbox", Toast.LENGTH_LONG).show();
-                        editor.clear();
-                        editor.commit();
                     }
                 } else {
                     Log.e(TAG, "onFailure: Refresh Token failure :" + String.valueOf(statusCode));
-                    Log.e(TAG, "onFailure: jsonResponse :" + jsonResponse);
-
+                    Log.e(TAG, "onFailure: refresh jsonResponse :" + jsonResponse);
                 }
                 mUsername.setText(username);
+                editor.commit();
             }
         });
     }

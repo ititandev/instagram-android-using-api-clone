@@ -138,54 +138,27 @@ public class SearchActivity extends AppCompatActivity {
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                     Log.e(TAG, "onFailure: statusCode: " + String.valueOf(statusCode));
                     Log.e(TAG, "onFailure: errorResponse :" + errorResponse.toString());
-                    editor.clear();
-                    editor.commit();
-//                    mUsername.setText(username);
-//                    try {
-//                        Toast.makeText(mContext, errorResponse.get("message").toString(), Toast.LENGTH_LONG).show();
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
+                    if (statusCode == 401) {
+                        editor.clear();
+                        editor.commit();
+                        try {
+                            Toast.makeText(mContext, errorResponse.get("message").toString(), Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(SearchActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, String jsonResponse, Throwable throwable) {
-//                    mProgressBar.setVisibility(View.GONE);
-//                    Log.v(TAG, "onFailure: String jsonResponse :" + jsonResponse);
-//                    Log.v(TAG, "onFailure: statusCode :" + String.valueOf(statusCode));
-//                    if (statusCode == 200) {
-//                        if (Boolean.valueOf(jsonResponse)) {
-//                            editor.clear();
-//                            editor.putString("username", username);
-//                            try {
-//                                for (int i = 0; i < 15; i++) {
-//                                    if (headers[i].toString().contains("Authorization")) {
-//                                        editor.putString("token", headers[i].toString().substring(15, headers[i].toString().length()));
-//                                        Log.v(TAG, "Refresh Token success :" + headers[i].toString().substring(15, headers[i].toString().length()));
-//                                        break;
-//                                    }
-//                                }
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                            }
-//                            editor.commit();
-//                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-//                            startActivity(intent);
-//                            finish();
-//                        } else {
-//                            Toast.makeText(mContext, "Email is not verified\nCheck your email inbox", Toast.LENGTH_LONG).show();
-//                            editor.clear();
-//                            editor.commit();
-//                        }
-//                    } else {
-//                        Log.e(TAG, "onFailure: Refresh Token failure :" + String.valueOf(statusCode));
-//                        Log.e(TAG, "onFailure: jsonResponse :" + jsonResponse);
-//
-//                    }
-//                    mUsername.setText(username);
+                    Log.v(TAG, "onFailure: String jsonResponse :" + jsonResponse);
+                    Log.v(TAG, "onFailure: statusCode :" + String.valueOf(statusCode));
+                    Toast.makeText(mContext, jsonResponse, Toast.LENGTH_LONG).show();
                 }
             });
-
         }
     }
 
