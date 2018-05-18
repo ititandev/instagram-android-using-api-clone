@@ -96,7 +96,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     public void signUp(final String username, final String password, String email, String name) {
         String requestSignup = "{\"username\": \"" + username + "\",\"password\": \"" + password + "\",\"email\": \"" + email + "\",\"name\": \"" + name + "\"}";
-        HttpService.post_text("/signup", requestSignup, new JsonHttpResponseHandler() {
+        HttpService.postBody("/signup", requestSignup, new JsonHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 mProgressBar.setVisibility(View.GONE);

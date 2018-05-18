@@ -2,6 +2,7 @@ package org.ititandev.instagram.home;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentTransaction;
@@ -42,6 +43,7 @@ public class HomeActivity extends AppCompatActivity implements
     private ViewPager mViewPager;
     private FrameLayout mFrameLayout;
     private RelativeLayout mRelativeLayout;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,7 @@ public class HomeActivity extends AppCompatActivity implements
         mViewPager = findViewById(R.id.viewpager_container);
         mFrameLayout = findViewById(R.id.container);
         mRelativeLayout = findViewById(R.id.relLayoutParent);
+        sharedPreferences = getSharedPreferences("instagram", Context.MODE_PRIVATE);
 
         initImageLoader();
         setupBottomNavigationView();

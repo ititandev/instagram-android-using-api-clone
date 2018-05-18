@@ -7,24 +7,26 @@ import android.os.Parcelable;
  * Created by User on 6/26/2017.
  */
 
-public class User implements Parcelable{
+public class User implements Parcelable {
 
     private String user_id;
     private long phone_number;
     private String email;
     private String username;
+    private String avatar_filename;
 
-    public User(String user_id, long phone_number, String email, String username) {
+
+    public User(String user_id, long phone_number, String email, String username, String avatar_filename) {
         this.user_id = user_id;
         this.phone_number = phone_number;
         this.email = email;
         this.username = username;
+        this.avatar_filename = avatar_filename;
     }
 
     public User() {
 
     }
-
 
     protected User(Parcel in) {
         user_id = in.readString();
@@ -77,6 +79,13 @@ public class User implements Parcelable{
         this.username = username;
     }
 
+    public String getAvatar_filename() {
+        return avatar_filename;
+    }
+
+    public void setAvatar_filename(String avatar_filename) {
+        this.avatar_filename = avatar_filename;
+    }
 
     @Override
     public String toString() {
@@ -85,6 +94,7 @@ public class User implements Parcelable{
                 ", phone_number='" + phone_number + '\'' +
                 ", email='" + email + '\'' +
                 ", username='" + username + '\'' +
+                ", avatar_filename='" + avatar_filename + '\'' +
                 '}';
     }
 

@@ -585,7 +585,7 @@ public class FirebaseMethods {
      */
     public void addNewUser(String email, String username, String description, String website, String profile_photo){
 
-        User user = new User( userID,  1,  email,  StringManipulation.condenseUsername(username) );
+        User user = new User( userID,  1,  email,  StringManipulation.condenseUsername(username), "");
 
         myRef.child(mContext.getString(R.string.dbname_users))
                 .child(userID)

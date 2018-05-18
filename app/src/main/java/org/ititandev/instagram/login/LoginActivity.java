@@ -128,7 +128,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void login(final String username, String password) {
         String requestLogin = "{\"username\": \"" + username + "\",\"password\": \"" + password + "\"}";
-        HttpService.post_text("/login", requestLogin, new JsonHttpResponseHandler() {
+        HttpService.postBody("/login", requestLogin, new JsonHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 mProgressBar.setVisibility(View.GONE);
@@ -181,7 +181,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void refreshToken(final String username, final String token) {
 
-        HttpService.post_header("/refresh", token, new JsonHttpResponseHandler() {
+        HttpService.postHeader("/refresh", token, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.v(TAG, "onSuccess: refresh token");

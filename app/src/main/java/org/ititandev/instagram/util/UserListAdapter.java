@@ -22,6 +22,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
 import org.ititandev.instagram.R;
 import org.ititandev.instagram.models.User;
 import org.ititandev.instagram.models.UserAccountSettings;
@@ -30,7 +31,7 @@ import org.ititandev.instagram.models.UserAccountSettings;
  * Created by User on 9/17/2017.
  */
 
-public class UserListAdapter extends ArrayAdapter<User>{
+public class UserListAdapter extends ArrayAdapter<User> {
 
     private static final String TAG = "UserListAdapter";
 
@@ -48,7 +49,7 @@ public class UserListAdapter extends ArrayAdapter<User>{
         this.mUsers = objects;
     }
 
-    private static class ViewHolder{
+    private static class ViewHolder {
         TextView username, email;
         CircleImageView profileImage;
     }
@@ -61,16 +62,15 @@ public class UserListAdapter extends ArrayAdapter<User>{
 
         final ViewHolder holder;
 
-        if(convertView == null){
+        if (convertView == null) {
             convertView = mInflater.inflate(layoutResource, parent, false);
             holder = new ViewHolder();
 
-            holder.username = (TextView) convertView.findViewById(R.id.username);
-            holder.email = (TextView) convertView.findViewById(R.id.email);
-            holder.profileImage = (CircleImageView) convertView.findViewById(R.id.profile_image);
-
+            holder.username = convertView.findViewById(R.id.username);
+            holder.email = convertView.findViewById(R.id.email);
+            holder.profileImage = convertView.findViewById(R.id.profile_image);
             convertView.setTag(holder);
-        }else{
+        } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
@@ -78,35 +78,15 @@ public class UserListAdapter extends ArrayAdapter<User>{
         holder.username.setText(getItem(position).getUsername());
         holder.email.setText(getItem(position).getEmail());
 
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-        Query query = reference.child(mContext.getString(R.string.dbname_user_account_settings))
-                .orderByChild(mContext.getString(R.string.field_user_id))
-                .equalTo(getItem(position).getUser_id());
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot singleSnapshot: dataSnapshot.getChildren()){
-                    Log.d(TAG, "onDataChange: found user: " +
-                            singleSnapshot.getValue(UserAccountSettings.class).toString());
 
-                    ImageLoader imageLoader = ImageLoader.getInstance();
+        ImageLoader imageLoader = ImageLoader.getInstance();
 
-                    imageLoader.displayImage(singleSnapshot.getValue(UserAccountSettings.class).getProfile_photo(),
-                            holder.profileImage);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
+        imageLoader.displayImage("http://192.168.100.14:8081/download/avatar/" + getItem(position).getAvatar_filename(), holder.profileImage);
         return convertView;
     }
 }
 
-
+//    getItem(position).getEmail()
 
 
 
