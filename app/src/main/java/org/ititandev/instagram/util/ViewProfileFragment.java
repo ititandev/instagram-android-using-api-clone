@@ -134,21 +134,21 @@ public class ViewProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: now following: " + mUser.getUsername());
-
-                FirebaseDatabase.getInstance().getReference()
-                        .child(getString(R.string.dbname_following))
-                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                        .child(mUser.getUser_id())
-                        .child(getString(R.string.field_user_id))
-                        .setValue(mUser.getUser_id());
-
-                FirebaseDatabase.getInstance().getReference()
-                        .child(getString(R.string.dbname_followers))
-                        .child(mUser.getUser_id())
-                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                        .child(getString(R.string.field_user_id))
-                        .setValue(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                setFollowing();
+//
+//                FirebaseDatabase.getInstance().getReference()
+//                        .child(getString(R.string.dbname_following))
+//                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+//                        .child(mUser.getUser_id())
+//                        .child(getString(R.string.field_user_id))
+//                        .setValue(mUser.getUser_id());
+//
+//                FirebaseDatabase.getInstance().getReference()
+//                        .child(getString(R.string.dbname_followers))
+//                        .child(mUser.getUser_id())
+//                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+//                        .child(getString(R.string.field_user_id))
+//                        .setValue(FirebaseAuth.getInstance().getCurrentUser().getUid());
+//                setFollowing();
             }
         });
 
@@ -158,18 +158,18 @@ public class ViewProfileFragment extends Fragment {
             public void onClick(View v) {
                 Log.d(TAG, "onClick: now unfollowing: " + mUser.getUsername());
 
-                FirebaseDatabase.getInstance().getReference()
-                        .child(getString(R.string.dbname_following))
-                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                        .child(mUser.getUser_id())
-                        .removeValue();
-
-                FirebaseDatabase.getInstance().getReference()
-                        .child(getString(R.string.dbname_followers))
-                        .child(mUser.getUser_id())
-                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                        .removeValue();
-                setUnfollowing();
+//                FirebaseDatabase.getInstance().getReference()
+//                        .child(getString(R.string.dbname_following))
+//                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+//                        .child(mUser.getUser_id())
+//                        .removeValue();
+//
+//                FirebaseDatabase.getInstance().getReference()
+//                        .child(getString(R.string.dbname_followers))
+//                        .child(mUser.getUser_id())
+//                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+//                        .removeValue();
+//                setUnfollowing();
             }
         });
 
@@ -197,7 +197,7 @@ public class ViewProfileFragment extends Fragment {
         //set the profile widgets
         DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference();
         Query query1 = reference1.child(getString(R.string.dbname_user_account_settings))
-                .orderByChild(getString(R.string.field_user_id)).equalTo(mUser.getUser_id());
+                .orderByChild(getString(R.string.field_user_id)).equalTo(mUser.getUsername());
         query1.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -223,7 +223,7 @@ public class ViewProfileFragment extends Fragment {
         DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference();
         Query query2 = reference2
                 .child(getString(R.string.dbname_user_photos))
-                .child(mUser.getUser_id());
+                .child(mUser.getUsername());
         query2.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -280,7 +280,7 @@ public class ViewProfileFragment extends Fragment {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
         Query query = reference.child(getString(R.string.dbname_following))
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .orderByChild(getString(R.string.field_user_id)).equalTo(mUser.getUser_id());
+                .orderByChild(getString(R.string.field_user_id)).equalTo(mUser.getUsername());
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -303,7 +303,7 @@ public class ViewProfileFragment extends Fragment {
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
         Query query = reference.child(getString(R.string.dbname_followers))
-                .child(mUser.getUser_id());
+                .child(mUser.getUsername());
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -326,7 +326,7 @@ public class ViewProfileFragment extends Fragment {
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
         Query query = reference.child(getString(R.string.dbname_following))
-                .child(mUser.getUser_id());
+                .child(mUser.getUsername());
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -349,7 +349,7 @@ public class ViewProfileFragment extends Fragment {
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
         Query query = reference.child(getString(R.string.dbname_user_photos))
-                .child(mUser.getUser_id());
+                .child(mUser.getUsername());
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

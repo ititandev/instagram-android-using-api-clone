@@ -9,19 +9,29 @@ import android.os.Parcelable;
 
 public class User implements Parcelable {
 
-    private String user_id;
-    private long phone_number;
+
+    private String name;
     private String email;
     private String username;
     private String avatar_filename;
 
 
-    public User(String user_id, long phone_number, String email, String username, String avatar_filename) {
-        this.user_id = user_id;
-        this.phone_number = phone_number;
+    private String phone_number;
+
+
+    public User(String name, String email, String username, String avatar_filename) {
+        this.name = name;
         this.email = email;
         this.username = username;
         this.avatar_filename = avatar_filename;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public User() {
@@ -29,10 +39,10 @@ public class User implements Parcelable {
     }
 
     protected User(Parcel in) {
-        user_id = in.readString();
-        phone_number = in.readLong();
+        name = in.readString();
         email = in.readString();
         username = in.readString();
+        avatar_filename = in.readString();
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -46,22 +56,6 @@ public class User implements Parcelable {
             return new User[size];
         }
     };
-
-    public String getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(String user_id) {
-        this.user_id = user_id;
-    }
-
-    public long getPhone_number() {
-        return phone_number;
-    }
-
-    public void setPhone_number(long phone_number) {
-        this.phone_number = phone_number;
-    }
 
     public String getEmail() {
         return email;
@@ -87,11 +81,18 @@ public class User implements Parcelable {
         this.avatar_filename = avatar_filename;
     }
 
+    public String getPhone_number() {
+        return phone_number;
+    }
+
+    public void setPhone_number(String phone_number) {
+        this.phone_number = phone_number;
+    }
+
     @Override
     public String toString() {
         return "User{" +
-                "user_id='" + user_id + '\'' +
-                ", phone_number='" + phone_number + '\'' +
+                "name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", username='" + username + '\'' +
                 ", avatar_filename='" + avatar_filename + '\'' +
@@ -105,9 +106,9 @@ public class User implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(user_id);
-        dest.writeLong(phone_number);
-        dest.writeString(email);
+        dest.writeString(name);
         dest.writeString(username);
+        dest.writeString(email);
+        dest.writeString(avatar_filename);
     }
 }

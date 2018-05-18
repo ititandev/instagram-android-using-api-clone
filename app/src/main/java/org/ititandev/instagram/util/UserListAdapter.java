@@ -75,7 +75,7 @@ public class UserListAdapter extends ArrayAdapter<User> {
         }
 
 
-        holder.username.setText(getItem(position).getUsername());
+        holder.username.setText(getItem(position).getName());
         holder.email.setText(getItem(position).getEmail());
 
 

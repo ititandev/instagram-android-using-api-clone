@@ -120,13 +120,11 @@ public class SearchActivity extends AppCompatActivity {
                             Log.v(TAG, response.get(i).toString());
                             JSONObject json = response.getJSONObject(i);
                             User temp = new User();
-                            temp.setUser_id("0");
+                            temp.setName(json.getString("name"));
                             temp.setUsername(json.getString("username"));
                             temp.setEmail(json.getString("email"));
                             temp.setAvatar_filename(json.getString("avatar_filename"));
-                            temp.setPhone_number(0);
                             mUserList.add(temp);
-
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

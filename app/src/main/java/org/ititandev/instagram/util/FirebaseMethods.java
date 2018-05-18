@@ -585,7 +585,7 @@ public class FirebaseMethods {
      */
     public void addNewUser(String email, String username, String description, String website, String profile_photo){
 
-        User user = new User( userID,  1,  email,  StringManipulation.condenseUsername(username), "");
+        User user = new User( null,  email,  StringManipulation.condenseUsername(username), "");
 
         myRef.child(mContext.getString(R.string.dbname_users))
                 .child(userID)
@@ -699,11 +699,6 @@ public class FirebaseMethods {
                             ds.child(userID)
                                     .getValue(User.class)
                                     .getPhone_number()
-                    );
-                    user.setUser_id(
-                            ds.child(userID)
-                                    .getValue(User.class)
-                                    .getUser_id()
                     );
 
                     Log.d(TAG, "getUserAccountSettings: retrieved users information: " + user.toString());

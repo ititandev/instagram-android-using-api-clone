@@ -93,7 +93,7 @@ public class ProfileActivity extends AppCompatActivity implements
             Log.d(TAG, "init: searching for user object attached as intent extra");
             if(intent.hasExtra(getString(R.string.intent_user))){
                 User user = intent.getParcelableExtra(getString(R.string.intent_user));
-                if(!user.getUser_id().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                if(!user.getUsername().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
                     Log.d(TAG, "init: inflating view profile");
                     ViewProfileFragment fragment = new ViewProfileFragment();
                     Bundle args = new Bundle();
