@@ -20,7 +20,6 @@ public class Photo implements Parcelable {
     private List<Like> likes;
     private List<Comment> comments;
 
-
     public Photo() {
 
     }

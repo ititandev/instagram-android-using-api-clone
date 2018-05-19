@@ -23,6 +23,7 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import org.ititandev.instagram.BuildConfig;
 import org.ititandev.instagram.R;
 import org.ititandev.instagram.models.User;
 import org.ititandev.instagram.models.UserAccountSettings;
@@ -81,7 +82,7 @@ public class UserListAdapter extends ArrayAdapter<User> {
 
         ImageLoader imageLoader = ImageLoader.getInstance();
 
-        imageLoader.displayImage("http://192.168.100.14:8081/download/avatar/" + getItem(position).getAvatar_filename(), holder.profileImage);
+        imageLoader.displayImage(BuildConfig.SERVER_URL + "/download/avatar/" + getItem(position).getAvatar_filename(), holder.profileImage);
         return convertView;
     }
 }

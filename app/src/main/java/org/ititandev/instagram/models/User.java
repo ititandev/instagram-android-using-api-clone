@@ -14,8 +14,6 @@ public class User implements Parcelable {
     private String email;
     private String username;
     private String avatar_filename;
-
-
     private String phone_number;
 
 
@@ -107,8 +105,8 @@ public class User implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
-        dest.writeString(username);
         dest.writeString(email);
+        dest.writeString(username);
         dest.writeString(avatar_filename);
     }
 }

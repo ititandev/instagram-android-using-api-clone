@@ -115,6 +115,10 @@ public class SearchActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                     Log.v(TAG, "response.length() = " + response.length());
+                    if (response.length() == 0) {
+                        Toast.makeText(mContext, "Not found", Toast.LENGTH_LONG);
+                        return;
+                    }
                     for (int i = 0; i < response.length(); i++) {
                         try {
                             Log.v(TAG, response.get(i).toString());
@@ -136,17 +140,17 @@ public class SearchActivity extends AppCompatActivity {
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                     Log.e(TAG, "onFailure: statusCode: " + String.valueOf(statusCode));
                     Log.e(TAG, "onFailure: errorResponse :" + errorResponse.toString());
+                    try {
+                        Toast.makeText(mContext, errorResponse.get("message").toString(), Toast.LENGTH_LONG).show();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     if (statusCode == 401) {
                         editor.clear();
+                        Intent intent = new Intent(SearchActivity.this, LoginActivity.class);
+                        startActivity(intent);
                         editor.commit();
-                        try {
-                            Toast.makeText(mContext, errorResponse.get("message").toString(), Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(SearchActivity.this, LoginActivity.class);
-                            startActivity(intent);
-                            finish();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        finish();
                     }
                 }
 
@@ -155,6 +159,13 @@ public class SearchActivity extends AppCompatActivity {
                     Log.v(TAG, "onFailure: String jsonResponse :" + jsonResponse);
                     Log.v(TAG, "onFailure: statusCode :" + String.valueOf(statusCode));
                     Toast.makeText(mContext, jsonResponse, Toast.LENGTH_LONG).show();
+                    if (statusCode == 401) {
+                        editor.clear();
+                        Intent intent = new Intent(SearchActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        editor.commit();
+                        finish();
+                    }
                 }
             });
         }
@@ -172,7 +183,6 @@ public class SearchActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(TAG, "onItemClick: selected user: " + mUserList.get(position).toString());
 
-                //navigate to profile activity
                 Intent intent = new Intent(SearchActivity.this, ProfileActivity.class);
                 intent.putExtra(getString(R.string.calling_activity), getString(R.string.search_activity));
                 intent.putExtra(getString(R.string.intent_user), mUserList.get(position));

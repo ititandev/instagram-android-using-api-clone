@@ -6,12 +6,14 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import org.ititandev.instagram.BuildConfig;
+
 import cz.msebera.android.httpclient.entity.ByteArrayEntity;
 
 public class HttpService {
 
 //    private static final String BASE_URL = "http://vre.hcmut.edu.vn/instagram";
-    private static final String BASE_URL = "http://192.168.100.14:8081";
+    private static final String BASE_URL = BuildConfig.SERVER_URL;
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
