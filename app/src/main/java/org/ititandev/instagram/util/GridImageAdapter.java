@@ -30,6 +30,7 @@ public class GridImageAdapter extends ArrayAdapter<String> {
     private LayoutInflater mInflater;
     private int layoutResource;
     private ArrayList<String> imgURLs;
+    private String mAppend;
 
     public GridImageAdapter(Context context, int layoutResource, String append, ArrayList<String> imgURLs) {
         super(context, layoutResource, imgURLs);
@@ -37,6 +38,7 @@ public class GridImageAdapter extends ArrayAdapter<String> {
         mContext = context;
         this.layoutResource = layoutResource;
         this.imgURLs = imgURLs;
+        this.mAppend = append;
     }
 
     private static class ViewHolder {
@@ -59,7 +61,6 @@ public class GridImageAdapter extends ArrayAdapter<String> {
         }
 
         String imgURL = BuildConfig.SERVER_URL + "/download/photo/" + imgURLs.get(position);
-        Log.e("ADAPTER", imgURLs.get(position));
         ImageLoader imageLoader = ImageLoader.getInstance();
         imageLoader.displayImage(imgURL, holder.image);
         holder.mProgressBar.setVisibility(View.GONE);

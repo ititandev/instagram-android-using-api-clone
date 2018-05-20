@@ -1,6 +1,8 @@
 package org.ititandev.instagram.profile;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,26 +29,23 @@ public class SignOutFragment extends Fragment {
 
     private static final String TAG = "SignOutFragment";
 
-    //firebase
-    private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-
     private ProgressBar mProgressBar;
     private TextView tvSignout, tvSigningOut;
+
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_signout, container, false);
-        tvSignout = (TextView) view.findViewById(R.id.tvConfirmSignout);
-        mProgressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-        tvSigningOut = (TextView) view.findViewById(R.id.tvSigningOut);
-        Button btnConfirmSignout = (Button) view.findViewById(R.id.btnConfirmSignout);
+        tvSignout = view.findViewById(R.id.tvConfirmSignout);
+        mProgressBar = view.findViewById(R.id.progressBar);
+        tvSigningOut = view.findViewById(R.id.tvSigningOut);
+        Button btnConfirmSignout = view.findViewById(R.id.btnConfirmSignout);
 
         mProgressBar.setVisibility(View.GONE);
         tvSigningOut.setVisibility(View.GONE);
-
-        setupFirebaseAuth();
 
         btnConfirmSignout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,60 +54,16 @@ public class SignOutFragment extends Fragment {
                 mProgressBar.setVisibility(View.VISIBLE);
                 tvSigningOut.setVisibility(View.VISIBLE);
 
-                mAuth.signOut();
+                sharedPreferences = getActivity().getSharedPreferences("instagram", Context.MODE_PRIVATE);
+                editor = sharedPreferences.edit();
+                editor.clear();
+                editor.commit();
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                startActivity(intent);
                 getActivity().finish();
             }
         });
 
         return view;
-    }
-
-     /*
-    ------------------------------------ Firebase ---------------------------------------------
-     */
-
-
-    /**
-     * Setup the firebase auth object
-     */
-    private void setupFirebaseAuth(){
-        Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
-
-        mAuth = FirebaseAuth.getInstance();
-
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-
-                if (user != null) {
-                    // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
-
-                    Log.d(TAG, "onAuthStateChanged: navigating back to login screen.");
-                    Intent intent = new Intent(getActivity(), LoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                }
-                // ...
-            }
-        };
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
     }
 }

@@ -55,9 +55,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * Created by User on 6/29/2017.
- */
 
 public class ViewProfileFragment extends Fragment {
 
@@ -72,11 +69,6 @@ public class ViewProfileFragment extends Fragment {
 
     private static final int ACTIVITY_NUM = 4;
     private static final int NUM_GRID_COLUMNS = 3;
-
-    //firebase
-    private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-    private FirebaseDatabase mFirebaseDatabase;
 
     //widgets
     private TextView mPosts, mFollowers, mFollowing, mDisplayName, mUsername, mWebsite, mDescription,
@@ -123,18 +115,16 @@ public class ViewProfileFragment extends Fragment {
 
         try {
             mUser = getUserFromBundle();
-//            init();
+            setProfile();
+            setPhoto();
         } catch (NullPointerException e) {
             Log.e(TAG, "onCreateView: NullPointerException: " + e.getMessage());
             Toast.makeText(mContext, "something went wrong", Toast.LENGTH_SHORT).show();
             getActivity().getSupportFragmentManager().popBackStack();
         }
 
-        setProfile();
-        setPhoto();
         setupBottomNavigationView();
         init();
-
 
         return view;
     }
@@ -356,6 +346,7 @@ public class ViewProfileFragment extends Fragment {
                 setupImageGrid(photos);
 
             }
+
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 Log.e(TAG, "onFailure: statusCode: " + String.valueOf(statusCode));
