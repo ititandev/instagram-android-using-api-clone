@@ -39,6 +39,7 @@ import java.util.Map;
 import cz.msebera.android.httpclient.Header;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import org.ititandev.instagram.BuildConfig;
 import org.ititandev.instagram.login.LoginActivity;
 import org.ititandev.instagram.profile.AccountSettingsActivity;
 import org.ititandev.instagram.R;
@@ -60,7 +61,7 @@ import org.json.JSONObject;
 
 public class ViewProfileFragment extends Fragment {
 
-    private static final String TAG = "ProfileFragment";
+    private static final String TAG = "ViewProfileFragment";
 
 
     public interface OnGridImageSelectedListener {
@@ -92,6 +93,7 @@ public class ViewProfileFragment extends Fragment {
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
+    private ArrayList<Photo> photos;
 
     @Nullable
     @Override
@@ -128,75 +130,73 @@ public class ViewProfileFragment extends Fragment {
             getActivity().getSupportFragmentManager().popBackStack();
         }
 
+        setProfile();
+        setPhoto();
         setupBottomNavigationView();
-        setupFirebaseAuth();
+        init();
 
-//        isFollowing();
-
-        setCount();
-
-
-        mFollow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: now following: " + mUser.getUsername());
-//
-//                FirebaseDatabase.getInstance().getReference()
-//                        .child(getString(R.string.dbname_following))
-//                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-//                        .child(mUser.getUser_id())
-//                        .child(getString(R.string.field_user_id))
-//                        .setValue(mUser.getUser_id());
-//
-//                FirebaseDatabase.getInstance().getReference()
-//                        .child(getString(R.string.dbname_followers))
-//                        .child(mUser.getUser_id())
-//                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-//                        .child(getString(R.string.field_user_id))
-//                        .setValue(FirebaseAuth.getInstance().getCurrentUser().getUid());
-//                setFollowing();
-            }
-        });
-
-
-        mUnfollow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: now unfollowing: " + mUser.getUsername());
-
-//                FirebaseDatabase.getInstance().getReference()
-//                        .child(getString(R.string.dbname_following))
-//                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-//                        .child(mUser.getUser_id())
-//                        .removeValue();
-//
-//                FirebaseDatabase.getInstance().getReference()
-//                        .child(getString(R.string.dbname_followers))
-//                        .child(mUser.getUser_id())
-//                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-//                        .removeValue();
-//                setUnfollowing();
-            }
-        });
-
-        //setupGridView();
-
-
-        editProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: navigating to " + mContext.getString(R.string.edit_profile_fragment));
-                Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
-                intent.putExtra(getString(R.string.calling_activity), getString(R.string.profile_activity));
-                startActivity(intent);
-                getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-            }
-        });
 
         return view;
     }
 
-    private void setCount() {
+    private void onClickFollow() {
+        String token = sharedPreferences.getString("token", "");
+        HttpService.getHeader("/follow/" + mUser.getUsername(), token, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+
+                try {
+                    Log.v(TAG, "onSuccess: response: " + response.toString());
+                    if (response.getBoolean("follow_status")) {
+                        setFollowing();
+                        mFollowers.setText(String.valueOf(Integer.valueOf(mFollowers.getText().toString()) + 1));
+                    } else {
+                        setUnfollowing();
+                        mFollowers.setText(String.valueOf(Integer.valueOf(mFollowers.getText().toString()) - 1));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.e(TAG, "onFailure: statusCode: " + String.valueOf(statusCode));
+                Log.e(TAG, "onFailure: errorResponse :" + errorResponse.toString());
+                try {
+                    Toast.makeText(mContext, errorResponse.get("message").toString(), Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (statusCode == 401) {
+                    editor.clear();
+                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                    startActivity(intent);
+                    editor.commit();
+                    getActivity().finish();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String jsonResponse, Throwable throwable) {
+                Log.e(TAG, "onFailure: String jsonResponse :" + jsonResponse);
+                Log.e(TAG, "onFailure: statusCode :" + String.valueOf(statusCode));
+                Toast.makeText(mContext, jsonResponse, Toast.LENGTH_LONG).show();
+                if (statusCode == 401) {
+                    editor.clear();
+                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                    startActivity(intent);
+                    editor.commit();
+                    getActivity().finish();
+                }
+            }
+        });
+    }
+
+    private void setProfile() {
+        mDisplayName.setText(mUser.getName());
+        mUsername.setText(mUser.getUsername());
         String token = sharedPreferences.getString("token", "");
         HttpService.getHeader("/profile/" + mUser.getUsername(), token, new JsonHttpResponseHandler() {
             @Override
@@ -207,9 +207,18 @@ public class ViewProfileFragment extends Fragment {
                     mPosts.setText(response.getString("photo_num"));
                     mFollowers.setText(response.getString("follower_num"));
                     mFollowing.setText(response.getString("following_num"));
+
+                    mWebsite.setText(response.getString("website"));
+                    mDescription.setText(response.getString("biography"));
+
+                    if (response.getBoolean("following"))
+                        setFollowing();
+                    else
+                        setUnfollowing();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
             }
 
             @Override
@@ -244,111 +253,44 @@ public class ViewProfileFragment extends Fragment {
                 }
             }
         });
+        String imgURL = BuildConfig.SERVER_URL + "/download/avatar/" + mUser.getAvatar_filename();
+        UniversalImageLoader.setImage(imgURL, mProfilePhoto, null, "");
+        mProgressBar.setVisibility(View.GONE);
     }
 
 
     private void init() {
-
-        //set the profile widgets
-        DatabaseReference reference1 = FirebaseDatabase.getInstance().getReference();
-        Query query1 = reference1.child(getString(R.string.dbname_user_account_settings))
-                .orderByChild(getString(R.string.field_user_id)).equalTo(mUser.getUsername());
-        query1.addListenerForSingleValueEvent(new ValueEventListener() {
+        mBackArrow.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-                    Log.d(TAG, "onDataChange: found user:" + singleSnapshot.getValue(UserAccountSettings.class).toString());
-
-                    UserSettings settings = new UserSettings();
-                    settings.setUser(mUser);
-                    settings.setSettings(singleSnapshot.getValue(UserAccountSettings.class));
-                    setProfileWidgets(settings);
-                }
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: navigating back");
+                getActivity().getSupportFragmentManager().popBackStack();
+                getActivity().finish();
             }
-
+        });
+        mFollow.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: now following: " + mUser.getUsername());
+                onClickFollow();
             }
         });
 
-
-        //get the users profile photos
-
-        DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference();
-        Query query2 = reference2
-                .child(getString(R.string.dbname_user_photos))
-                .child(mUser.getUsername());
-        query2.addListenerForSingleValueEvent(new ValueEventListener() {
+        mUnfollow.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                ArrayList<Photo> photos = new ArrayList<Photo>();
-                for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-
-                    Photo photo = new Photo();
-                    Map<String, Object> objectMap = (HashMap<String, Object>) singleSnapshot.getValue();
-
-                    photo.setCaption(objectMap.get(getString(R.string.field_caption)).toString());
-                    photo.setTags(objectMap.get(getString(R.string.field_tags)).toString());
-                    photo.setPhoto_id(objectMap.get(getString(R.string.field_photo_id)).toString());
-                    photo.setUser_id(objectMap.get(getString(R.string.field_user_id)).toString());
-                    photo.setDate_created(objectMap.get(getString(R.string.field_date_created)).toString());
-                    photo.setImage_path(objectMap.get(getString(R.string.field_image_path)).toString());
-
-                    ArrayList<Comment> comments = new ArrayList<Comment>();
-                    for (DataSnapshot dSnapshot : singleSnapshot
-                            .child(getString(R.string.field_comments)).getChildren()) {
-                        Comment comment = new Comment();
-                        comment.setUser_id(dSnapshot.getValue(Comment.class).getUser_id());
-                        comment.setComment(dSnapshot.getValue(Comment.class).getComment());
-                        comment.setDate_created(dSnapshot.getValue(Comment.class).getDate_created());
-                        comments.add(comment);
-                    }
-
-                    photo.setComments(comments);
-
-                    List<Like> likesList = new ArrayList<Like>();
-                    for (DataSnapshot dSnapshot : singleSnapshot
-                            .child(getString(R.string.field_likes)).getChildren()) {
-                        Like like = new Like();
-                        like.setUser_id(dSnapshot.getValue(Like.class).getUser_id());
-                        likesList.add(like);
-                    }
-                    photo.setLikes(likesList);
-                    photos.add(photo);
-                }
-                setupImageGrid(photos);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "onCancelled: query cancelled.");
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: now unfollowing: " + mUser.getUsername());
+                onClickFollow();
             }
         });
-    }
-
-    private void isFollowing() {
-        Log.d(TAG, "isFollowing: checking if following this users.");
-        setUnfollowing();
-
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-        Query query = reference.child(getString(R.string.dbname_following))
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .orderByChild(getString(R.string.field_user_id)).equalTo(mUser.getUsername());
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        editProfile.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-                    Log.d(TAG, "onDataChange: found user:" + singleSnapshot.getValue());
-
-                    setFollowing();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: navigating to " + mContext.getString(R.string.edit_profile_fragment));
+                Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
+                intent.putExtra(getString(R.string.calling_activity), getString(R.string.profile_activity));
+                startActivity(intent);
+                getActivity().overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
         });
     }
@@ -367,31 +309,9 @@ public class ViewProfileFragment extends Fragment {
         editProfile.setVisibility(View.GONE);
     }
 
-    private void setupImageGrid(final ArrayList<Photo> photos) {
-        //setup our image grid
-        int gridWidth = getResources().getDisplayMetrics().widthPixels;
-        int imageWidth = gridWidth / NUM_GRID_COLUMNS;
-        gridView.setColumnWidth(imageWidth);
-
-        ArrayList<String> imgUrls = new ArrayList<String>();
-        for (int i = 0; i < photos.size(); i++) {
-            imgUrls.add(photos.get(i).getImage_path());
-        }
-        GridImageAdapter adapter = new GridImageAdapter(getActivity(), R.layout.layout_grid_imageview,
-                "", imgUrls);
-        gridView.setAdapter(adapter);
-
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mOnGridImageSelectedListener.onGridImageSelected(photos.get(position), ACTIVITY_NUM);
-            }
-        });
-    }
 
     private User getUserFromBundle() {
         Log.d(TAG, "getUserFromBundle: arguments: " + getArguments());
-
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             return bundle.getParcelable(getString(R.string.intent_user));
@@ -411,40 +331,117 @@ public class ViewProfileFragment extends Fragment {
     }
 
 
-    private void setProfileWidgets(UserSettings userSettings) {
-        //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.toString());
-        //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.getSettings().getUsername());
+    private void setPhoto() {
 
-
-        //User user = userSettings.getUser();
-        UserAccountSettings settings = userSettings.getSettings();
-
-        UniversalImageLoader.setImage(settings.getProfile_photo(), mProfilePhoto, null, "");
-
-        mDisplayName.setText(settings.getDisplay_name());
-        mUsername.setText(settings.getUsername());
-        mWebsite.setText(settings.getWebsite());
-        mDescription.setText(settings.getDescription());
-        mPosts.setText(String.valueOf(settings.getPosts()));
-        mFollowing.setText(String.valueOf(settings.getFollowing()));
-        mFollowers.setText(String.valueOf(settings.getFollowers()));
-        mProgressBar.setVisibility(View.GONE);
-
-        mBackArrow.setOnClickListener(new View.OnClickListener() {
+        photos = new ArrayList<Photo>();
+        String token = sharedPreferences.getString("token", "");
+        HttpService.getHeader("/photo/" + mUser.getUsername() + "/0/45", token, new JsonHttpResponseHandler() {
             @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: navigating back");
-                getActivity().getSupportFragmentManager().popBackStack();
-                getActivity().finish();
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+
+                try {
+
+                    Log.e(TAG, "onSuccess getPhoto: length: " + response.length());
+                    for (int i = 0; i < response.length(); i++) {
+                        Photo photo = new Photo();
+                        JSONObject temp = response.getJSONObject(i);
+                        photo.setImage_path(temp.getString("filename"));
+                        photos.add(photo);
+                        Log.e(TAG, "onSuccess getPhoto: response: " + temp.toString());
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                setupImageGrid(photos);
+
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.e(TAG, "onFailure: statusCode: " + String.valueOf(statusCode));
+                Log.e(TAG, "onFailure: errorResponse :" + errorResponse.toString());
+                try {
+                    Toast.makeText(mContext, errorResponse.get("message").toString(), Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (statusCode == 401) {
+                    editor.clear();
+                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                    startActivity(intent);
+                    editor.commit();
+                    getActivity().finish();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String jsonResponse, Throwable throwable) {
+                Log.v(TAG, "onFailure: String jsonResponse :" + jsonResponse);
+                Log.v(TAG, "onFailure: statusCode :" + String.valueOf(statusCode));
+                Toast.makeText(mContext, jsonResponse, Toast.LENGTH_LONG).show();
+                if (statusCode == 401) {
+                    editor.clear();
+                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                    startActivity(intent);
+                    editor.commit();
+                    getActivity().finish();
+                }
             }
         });
 
+
+//        photo.setCaption(objectMap.get(getString(R.string.field_caption)).toString());
+//        photo.setTags(objectMap.get(getString(R.string.field_tags)).toString());
+//        photo.setPhoto_id(objectMap.get(getString(R.string.field_photo_id)).toString());
+//        photo.setUser_id(objectMap.get(getString(R.string.field_user_id)).toString());
+//        photo.setDate_created(objectMap.get(getString(R.string.field_date_created)).toString());
+//        photo.setImage_path(objectMap.get(getString(R.string.field_image_path)).toString());
+//
+//        ArrayList<Comment> comments = new ArrayList<Comment>();
+//        for (DataSnapshot dSnapshot : singleSnapshot
+//                .child(getString(R.string.field_comments)).getChildren()) {
+//            Comment comment = new Comment();
+//            comment.setUser_id(dSnapshot.getValue(Comment.class).getUser_id());
+//            comment.setComment(dSnapshot.getValue(Comment.class).getComment());
+//            comment.setDate_created(dSnapshot.getValue(Comment.class).getDate_created());
+//            comments.add(comment);
+//        }
+//
+//        photo.setComments(comments);
+//
+//        List<Like> likesList = new ArrayList<Like>();
+//        for (DataSnapshot dSnapshot : singleSnapshot
+//                .child(getString(R.string.field_likes)).getChildren()) {
+//            Like like = new Like();
+//            like.setUser_id(dSnapshot.getValue(Like.class).getUser_id());
+//            likesList.add(like);
+//        }
+//        photo.setLikes(likesList);
+
+
     }
 
+    private void setupImageGrid(final ArrayList<Photo> photos) {
+        //setup our image grid
+        int gridWidth = getResources().getDisplayMetrics().widthPixels;
+        int imageWidth = gridWidth / NUM_GRID_COLUMNS;
+        gridView.setColumnWidth(imageWidth);
 
-    /**
-     * BottomNavigationView setup
-     */
+        ArrayList<String> imgUrls = new ArrayList<String>();
+        for (int i = 0; i < photos.size(); i++) {
+            imgUrls.add(photos.get(i).getImage_path());
+        }
+        GridImageAdapter adapter = new GridImageAdapter(getActivity(), R.layout.layout_grid_imageview, "", imgUrls);
+        gridView.setAdapter(adapter);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mOnGridImageSelectedListener.onGridImageSelected(photos.get(position), ACTIVITY_NUM);
+            }
+        });
+    }
+
     private void setupBottomNavigationView() {
         Log.d(TAG, "setupBottomNavigationView: setting up BottomNavigationView");
         BottomNavigationViewHelper.setupBottomNavigationView(bottomNavigationView);
@@ -454,50 +451,4 @@ public class ViewProfileFragment extends Fragment {
         menuItem.setChecked(true);
     }
 
-      /*
-    ------------------------------------ Firebase ---------------------------------------------
-     */
-
-    /**
-     * Setup the firebase auth object
-     */
-    private void setupFirebaseAuth() {
-        Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
-
-        mAuth = FirebaseAuth.getInstance();
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-
-                if (user != null) {
-                    // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
-                }
-                // ...
-            }
-        };
-
-
-    }
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
-    }
 }

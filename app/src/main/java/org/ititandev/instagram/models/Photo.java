@@ -17,6 +17,25 @@ public class Photo implements Parcelable {
     private String photo_id;
     private String user_id;
     private String tags;
+    private int like_count;
+
+    public int getLike_count() {
+        return like_count;
+    }
+
+    public void setLike_count(int like_count) {
+        this.like_count = like_count;
+    }
+
+    public int getComment_count() {
+        return comment_count;
+    }
+
+    public void setComment_count(int comment_count) {
+        this.comment_count = comment_count;
+    }
+
+    private int comment_count;
     private List<Like> likes;
     private List<Comment> comments;
 

@@ -118,9 +118,6 @@ public class ProfileFragment extends Fragment {
 
         setupGridView();
 
-        getFollowersCount();
-        getFollowingCount();
-        getPostsCount();
 
         TextView editProfile = view.findViewById(R.id.textEditProfile);
         editProfile.setOnClickListener(new View.OnClickListener() {
@@ -206,8 +203,8 @@ public class ProfileFragment extends Fragment {
                 for (int i = 0; i < photos.size(); i++) {
                     imgUrls.add(photos.get(i).getImage_path());
                 }
-                GridImageAdapter adapter = new GridImageAdapter(getActivity(), R.layout.layout_grid_imageview,
-                        "", imgUrls);
+                GridImageAdapter adapter = new GridImageAdapter(getActivity(), R.layout.layout_grid_imageview, "",
+                        imgUrls);
                 gridView.setAdapter(adapter);
 
                 gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -225,21 +222,6 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void getFollowersCount() {
-        mFollowersCount = 0;
-        mFollowers.setText(String.valueOf(mFollowersCount));
-    }
-
-    private void getFollowingCount() {
-        mFollowingCount = 0;
-        mFollowing.setText(String.valueOf(mFollowingCount));
-    }
-
-    private void getPostsCount() {
-        mPostsCount = 0;
-        mPosts.setText(String.valueOf(mPostsCount));
-    }
-
     private void setProfileWidgets(UserSettings userSettings) {
         //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.toString());
         //Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.getSettings().getUsername());
@@ -254,11 +236,7 @@ public class ProfileFragment extends Fragment {
 //                .load(settings.getProfile_photo())
 //                .into(mProfilePhoto);
 
-        mDisplayName.setText(settings.getDisplay_name());
-        mUsername.setText(settings.getUsername());
-        mWebsite.setText(settings.getWebsite());
-        mDescription.setText(settings.getDescription());
-        mProgressBar.setVisibility(View.GONE);
+
     }
 
 

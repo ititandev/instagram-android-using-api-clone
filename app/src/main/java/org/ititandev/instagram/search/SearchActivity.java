@@ -3,6 +3,7 @@ package org.ititandev.instagram.search;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +28,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -111,7 +114,7 @@ public class SearchActivity extends AppCompatActivity {
             return;
         } else {
             String token = sharedPreferences.getString("token", "");
-            HttpService.getHeader("/search/user/" + keyword, token, new JsonHttpResponseHandler() {
+            HttpService.getHeader("/search/user?search=" + Uri.encode(keyword), token, new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                     Log.v(TAG, "response.length() = " + response.length());
