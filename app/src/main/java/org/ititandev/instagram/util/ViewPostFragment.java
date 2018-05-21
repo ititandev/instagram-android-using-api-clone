@@ -127,7 +127,14 @@ public class ViewPostFragment extends Fragment {
             //mPhoto = getPhotoFromBundle();
             UniversalImageLoader.setImage(imgURL, mPostImage, null, "");
             mActivityNumber = getActivityNumFromBundle();
+            Photo photo = getPhotoFromBundle();
             String photo_id = getPhotoFromBundle().getPhoto_id();
+            mCaption.setText(photo.getCaption());
+            mUsername.setText(photo.getUser_id());
+            mLikes.setText(photo.getLike_count() + " liked");
+            mComments.setText(photo.getComment_count() + " commented");
+            mTimestamp.setText(photo.getDate_created());
+
             Log.e(TAG, getPhotoFromBundle().toString());
             Query query = FirebaseDatabase.getInstance().getReference()
                     .child(getString(R.string.dbname_photos))
