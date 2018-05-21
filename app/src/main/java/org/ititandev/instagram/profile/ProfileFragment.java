@@ -78,12 +78,14 @@ public class ProfileFragment extends Fragment {
     private GridView gridView;
     private Toolbar toolbar;
     private ImageView profileMenu;
+    private ImageView mBackArrow;
     private BottomNavigationViewEx bottomNavigationView;
     private Context mContext;
 
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
     private ArrayList<Photo> photos;
+
 
     @Nullable
     @Override
@@ -102,6 +104,7 @@ public class ProfileFragment extends Fragment {
         toolbar = view.findViewById(R.id.profileToolBar);
         profileMenu = view.findViewById(R.id.profileMenu);
         bottomNavigationView = view.findViewById(R.id.bottomNavViewBar);
+        mBackArrow = view.findViewById(R.id.backArrow);
         mContext = getActivity();
 
         sharedPreferences = getActivity().getSharedPreferences("instagram", Context.MODE_PRIVATE);
@@ -111,13 +114,17 @@ public class ProfileFragment extends Fragment {
 
         setupBottomNavigationView();
         setupToolbar();
-        setPhoto();
-        setProfile();
         init(view);
-
         return view;
     }
 
+    @Override
+    public void onStart() {
+        Log.d(TAG, "onStart");
+        super.onStart();
+        setPhoto();
+        setProfile();
+    }
 
     private void setPhoto() {
         Log.d(TAG, "setPhoto: Setting up image grid.");
@@ -292,6 +299,15 @@ public class ProfileFragment extends Fragment {
     }
 
     private void init(View view) {
+        mBackArrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: navigating back");
+                getActivity().getSupportFragmentManager().popBackStack();
+                getActivity().finish();
+            }
+        });
+
         TextView editProfile = view.findViewById(R.id.textEditProfile);
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override

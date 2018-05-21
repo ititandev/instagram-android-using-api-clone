@@ -325,7 +325,7 @@ public class ViewProfileFragment extends Fragment {
 
         photos = new ArrayList<Photo>();
         String token = sharedPreferences.getString("token", "");
-        HttpService.getHeader("/photo/" + mUser.getUsername() + "/0/45", token, new JsonHttpResponseHandler() {
+        HttpService.getHeader("/photo/" + mUser.getUsername() + "/0/100", token, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
 

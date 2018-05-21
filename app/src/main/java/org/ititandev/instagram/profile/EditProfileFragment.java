@@ -223,11 +223,6 @@ public class EditProfileFragment extends Fragment implements
     }
 
 
-
-    /**
-     * Check is @param username already exists in teh database
-     * @param username
-     */
     private void checkIfUsernameExists(final String username) {
         Log.d(TAG, "checkIfUsernameExists: Checking if  " + username + " already exists.");
 
