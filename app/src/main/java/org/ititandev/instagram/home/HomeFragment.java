@@ -89,7 +89,7 @@ public class HomeFragment extends Fragment implements OnUpdateListener, OnLoadLi
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 //        mListView = (ListView) view.findViewById(R.id.listView);
-        mListView = (ElasticListView) view.findViewById(R.id.listView);
+        mListView = view.findViewById(R.id.listView);
 
         initListViewRefresh();
         getFollowing();

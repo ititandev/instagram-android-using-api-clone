@@ -125,7 +125,7 @@ public class ProfileFragment extends Fragment {
         final ArrayList<Photo> photos = new ArrayList<>();
         String token = sharedPreferences.getString("token", "");
         String username = sharedPreferences.getString("username", "");
-        HttpService.getHeader("/photo/" + username + "/0/45", token, new JsonHttpResponseHandler() {
+        HttpService.getHeader("/photo/" + username + "/0/100", token, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
 
@@ -135,12 +135,15 @@ public class ProfileFragment extends Fragment {
                     for (int i = 0; i < response.length(); i++) {
                         Photo photo = new Photo();
                         JSONObject temp = response.getJSONObject(i);
+                        photo.setImage_path(temp.getString("filename"));
                         photo.setCaption(temp.getString("caption"));
-//                        photo.setTags(temp.getString(getString(R.string.field_tags)).toString());
                         photo.setPhoto_id(temp.getString("photo_id"));
                         photo.setUser_id(temp.getString("username"));
                         photo.setDate_created(temp.getString("datetime_upload"));
-                        photo.setImage_path(temp.getString("filename"));
+                        photo.setComment_count(temp.getInt("comment_num"));
+                        photo.setLike_count(temp.getInt("like_num"));
+                        photo.setAvatar_filename(temp.getString("avatar_filename"));
+                        photo.setName(temp.getString("name"));
 
 //                        ArrayList<Comment> comments = new ArrayList<Comment>();
 //                        for (DataSnapshot dSnapshot : singleSnapshot
@@ -162,7 +165,6 @@ public class ProfileFragment extends Fragment {
 //                            likesList.add(like);
 //                        }
 //                        photo.setLikes(likesList);
-
                         photos.add(photo);
                     }
                     setupImageGrid(photos);
@@ -194,8 +196,8 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String jsonResponse, Throwable throwable) {
-                Log.v(TAG, "onFailure: String jsonResponse :" + jsonResponse);
-                Log.v(TAG, "onFailure: statusCode :" + String.valueOf(statusCode));
+                Log.e(TAG, "onFailure: String jsonResponse :" + jsonResponse);
+                Log.e(TAG, "onFailure: statusCode :" + String.valueOf(statusCode));
                 Toast.makeText(mContext, jsonResponse, Toast.LENGTH_LONG).show();
                 if (statusCode == 401) {
                     editor.clear();
@@ -338,3 +340,4 @@ public class ProfileFragment extends Fragment {
         menuItem.setChecked(true);
     }
 }
+

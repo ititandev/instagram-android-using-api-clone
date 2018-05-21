@@ -18,6 +18,27 @@ public class Photo implements Parcelable {
     private String user_id;
     private String tags;
     private int like_count;
+    private String avatar_filename;
+    private String name;
+    private int comment_count;
+    private List<Like> likes;
+    private List<Comment> comments;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAvatar_filename() {
+        return avatar_filename;
+    }
+
+    public void setAvatar_filename(String avatar_filename) {
+        this.avatar_filename = avatar_filename;
+    }
 
     public int getLike_count() {
         return like_count;
@@ -35,9 +56,6 @@ public class Photo implements Parcelable {
         this.comment_count = comment_count;
     }
 
-    private int comment_count;
-    private List<Like> likes;
-    private List<Comment> comments;
 
     public Photo() {
 
@@ -62,6 +80,10 @@ public class Photo implements Parcelable {
         photo_id = in.readString();
         user_id = in.readString();
         tags = in.readString();
+        like_count = in.readInt();
+        avatar_filename = in.readString();
+        name = in.readString();
+        comment_count = in.readInt();
     }
 
     @Override
@@ -72,6 +94,10 @@ public class Photo implements Parcelable {
         dest.writeString(photo_id);
         dest.writeString(user_id);
         dest.writeString(tags);
+        dest.writeInt(like_count);
+        dest.writeString(avatar_filename);
+        dest.writeString(name);
+        dest.writeInt(comment_count);
     }
 
     @Override
@@ -168,7 +194,10 @@ public class Photo implements Parcelable {
                 ", photo_id='" + photo_id + '\'' +
                 ", user_id='" + user_id + '\'' +
                 ", tags='" + tags + '\'' +
-                ", likes=" + likes +
+                ", like_count =" + like_count +
+                ", avatar_filename =" + avatar_filename +
+                ", name =" + name +
+                ", comment_count =" + comment_count +
                 '}';
     }
 }

@@ -21,9 +21,6 @@ import org.ititandev.instagram.util.ViewProfileFragment;
 import org.ititandev.instagram.models.Photo;
 import org.ititandev.instagram.models.User;
 
-/**
- * Created by User on 5/28/2017.
- */
 
 public class ProfileActivity extends AppCompatActivity implements
         ProfileFragment.OnGridImageSelectedListener,

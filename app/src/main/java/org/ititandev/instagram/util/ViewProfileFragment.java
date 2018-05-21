@@ -336,6 +336,14 @@ public class ViewProfileFragment extends Fragment {
                         Photo photo = new Photo();
                         JSONObject temp = response.getJSONObject(i);
                         photo.setImage_path(temp.getString("filename"));
+                        photo.setCaption(temp.getString("caption"));
+                        photo.setPhoto_id(temp.getString("photo_id"));
+                        photo.setUser_id(temp.getString("username"));
+                        photo.setDate_created(temp.getString("datetime_upload"));
+                        photo.setComment_count(temp.getInt("comment_num"));
+                        photo.setLike_count(temp.getInt("like_num"));
+                        photo.setAvatar_filename(temp.getString("avatar_filename"));
+                        photo.setName(temp.getString("name"));
                         photos.add(photo);
                         Log.e(TAG, "onSuccess getPhoto: response: " + temp.toString());
                     }
