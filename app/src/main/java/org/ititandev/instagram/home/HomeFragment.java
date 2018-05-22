@@ -1,5 +1,8 @@
 package org.ititandev.instagram.home;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.eschao.android.widget.elasticlistview.ElasticListView;
 import com.eschao.android.widget.elasticlistview.LoadFooter;
@@ -22,7 +26,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
+import org.ititandev.instagram.login.LoginActivity;
+import org.ititandev.instagram.service.HttpService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +49,8 @@ import org.ititandev.instagram.models.Photo;
 import org.ititandev.instagram.models.Story;
 import org.ititandev.instagram.models.UserAccountSettings;
 
+import cz.msebera.android.httpclient.Header;
+
 /**
  * Created by User on 5/28/2017.
  */
@@ -49,10 +58,83 @@ import org.ititandev.instagram.models.UserAccountSettings;
 public class HomeFragment extends Fragment implements OnUpdateListener, OnLoadListener {
 
     private static final String TAG = "HomeFragment";
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
+    private Context mContext;
 
     @Override
     public void onUpdate() {
         Log.d(TAG, "ElasticListView: updating list view...");
+        String token = sharedPreferences.getString("token", "");
+        String username = sharedPreferences.getString("username", "");
+        HttpService.getHeader("/newfeed/0/100", token, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+
+                try {
+
+                    Log.e(TAG, "onSuccess getPhoto: length: " + response.length());
+                    for (int i = 0; i < response.length(); i++) {
+                        Photo photo = new Photo();
+                        JSONObject temp = response.getJSONObject(i);
+                        photo.setImage_path(temp.getString("filename"));
+                        photo.setCaption(temp.getString("caption"));
+                        photo.setPhoto_id(temp.getString("photo_id"));
+                        photo.setUser_id(temp.getString("username"));
+                        photo.setDate_created(temp.getString("datetime_upload"));
+                        photo.setComment_count(temp.getInt("comment_num"));
+                        photo.setLike_count(temp.getInt("like_num"));
+                        photo.setAvatar_filename(temp.getString("avatar_filename"));
+                        photo.setName(temp.getString("name"));
+                        mPaginatedPhotos.add(photo);
+                        Log.e(TAG, "onSuccess getPhoto: response: " + temp.toString());
+
+                        adapter = new MainFeedListAdapter(getActivity(), R.layout.layout_mainfeed_listitem, mPaginatedPhotos);
+                        mListView.setAdapter(adapter);
+
+                        // Notify update is done
+                        mListView.notifyUpdated();
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.e(TAG, "onFailure: statusCode: " + String.valueOf(statusCode));
+                Log.e(TAG, "onFailure: errorResponse :" + errorResponse.toString());
+                try {
+                    Toast.makeText(mContext, errorResponse.get("message").toString(), Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (statusCode == 401) {
+                    editor.clear();
+                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                    startActivity(intent);
+                    editor.commit();
+                    getActivity().finish();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String jsonResponse, Throwable throwable) {
+                Log.v(TAG, "onFailure: String jsonResponse :" + jsonResponse);
+                Log.v(TAG, "onFailure: statusCode :" + String.valueOf(statusCode));
+                Toast.makeText(mContext, jsonResponse, Toast.LENGTH_LONG).show();
+                if (statusCode == 401) {
+                    editor.clear();
+                    Intent intent = new Intent(getActivity(), LoginActivity.class);
+                    startActivity(intent);
+                    editor.commit();
+                    getActivity().finish();
+                }
+            }
+        });
+
 
         getFollowing();
     }
@@ -89,12 +171,16 @@ public class HomeFragment extends Fragment implements OnUpdateListener, OnLoadLi
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         mListView = view.findViewById(R.id.listView);
+        sharedPreferences = getActivity().getSharedPreferences("instagram", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+        mContext = getActivity();
 
         initListViewRefresh();
         getFollowing();
 
         return view;
     }
+
 
     private void initListViewRefresh() {
         mListView.setHorizontalFadingEdgeEnabled(true);
@@ -399,7 +485,7 @@ public class HomeFragment extends Fragment implements OnUpdateListener, OnLoadLi
 
             try {
 
-                //sort for newest to oldest
+                //sort for newest to oldedave
                 Collections.sort(mPhotos, new Comparator<Photo>() {
                     public int compare(Photo o1, Photo o2) {
                         return o2.getDate_created().compareTo(o1.getDate_created());

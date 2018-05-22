@@ -33,6 +33,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import org.ititandev.instagram.BuildConfig;
 import org.ititandev.instagram.home.HomeActivity;
 import org.ititandev.instagram.profile.ProfileActivity;
 import org.ititandev.instagram.R;
@@ -48,9 +50,10 @@ import org.ititandev.instagram.models.UserAccountSettings;
 
 public class MainFeedListAdapter extends ArrayAdapter<Photo> {
 
-    public interface OnLoadMoreItemsListener{
+    public interface OnLoadMoreItemsListener {
         void onLoadMoreItems();
     }
+
     OnLoadMoreItemsListener mOnLoadMoreItemsListener;
 
     private static final String TAG = "MainFeedListAdapter";
@@ -73,7 +76,7 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
 //        }
     }
 
-    static class ViewHolder{
+    static class ViewHolder {
         CircleImageView mprofileImage;
         String likesString;
         TextView username, timeDetla, caption, likes, comments;
@@ -81,7 +84,7 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
         ImageView heartRed, heartWhite, comment;
 
         UserAccountSettings settings = new UserAccountSettings();
-        User user  = new User();
+        User user = new User();
         StringBuilder users;
         String mLikesString;
         boolean likeByCurrentUser;
@@ -96,7 +99,7 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
 
         final ViewHolder holder;
 
-        if(convertView == null){
+        if (convertView == null) {
             convertView = mInflater.inflate(mLayoutResource, parent, false);
             holder = new ViewHolder();
 
@@ -112,8 +115,7 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
             holder.mprofileImage = (CircleImageView) convertView.findViewById(R.id.profile_photo);
 
             convertView.setTag(holder);
-        }
-        else{
+        } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
@@ -133,155 +135,140 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
 
         //set the comment
         List<Comment> comments = getItem(position).getComments();
-        holder.comments.setText("View all " + comments.size() + " comments");
+        holder.comments.setText("View all " + getItem(position).getComment_count() + " comments");
         holder.comments.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: loading comment thread for " + getItem(position).getPhoto_id());
-                ((HomeActivity)mContext).onCommentThreadSelected(getItem(position),
+                ((HomeActivity) mContext).onCommentThreadSelected(getItem(position),
                         mContext.getString(R.string.home_activity));
 
                 //going to need to do something else?
-                ((HomeActivity)mContext).hideLayout();
+                ((HomeActivity) mContext).hideLayout();
 
             }
         });
 
         //set the time it was posted
         String timestampDifference = getTimestampDifference(getItem(position));
-        if(!timestampDifference.equals("0")){
+        if (!timestampDifference.equals("0")) {
             holder.timeDetla.setText(timestampDifference + " DAYS AGO");
-        }else{
+        } else {
             holder.timeDetla.setText("TODAY");
         }
 
         //set the profile image
         final ImageLoader imageLoader = ImageLoader.getInstance();
-        imageLoader.displayImage(getItem(position).getImage_path(), holder.image);
+        String imgURL = BuildConfig.SERVER_URL + "/download/photo/" + getItem(position).getImage_path();
+        imageLoader.displayImage(imgURL, holder.image);
 
 
         //get the profile image and username
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-        Query query = reference
-                .child(mContext.getString(R.string.dbname_user_account_settings))
-                .orderByChild(mContext.getString(R.string.field_user_id))
-                .equalTo(getItem(position).getUser_id());
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+
+
+        // currentUsername = singleSnapshot.getValue(UserAccountSettings.class).getUsername();
+
+//        Log.d(TAG, "onDataChange: found user: "
+//                + singleSnapshot.getValue(UserAccountSettings.class).getUsername());
+
+        holder.username.setText(getItem(position).getUser_id());
+        holder.username.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot singleSnapshot : dataSnapshot.getChildren()){
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: navigating to profile of: " +
+                        holder.user.getUsername());
 
-                   // currentUsername = singleSnapshot.getValue(UserAccountSettings.class).getUsername();
-
-                    Log.d(TAG, "onDataChange: found user: "
-                            + singleSnapshot.getValue(UserAccountSettings.class).getUsername());
-
-                    holder.username.setText(singleSnapshot.getValue(UserAccountSettings.class).getUsername());
-                    holder.username.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Log.d(TAG, "onClick: navigating to profile of: " +
-                                    holder.user.getUsername());
-
-                            Intent intent = new Intent(mContext, ProfileActivity.class);
-                            intent.putExtra(mContext.getString(R.string.calling_activity),
-                                    mContext.getString(R.string.home_activity));
-                            intent.putExtra(mContext.getString(R.string.intent_user), holder.user);
-                            mContext.startActivity(intent);
-                        }
-                    });
-
-                    imageLoader.displayImage(singleSnapshot.getValue(UserAccountSettings.class).getProfile_photo(),
-                            holder.mprofileImage);
-                    holder.mprofileImage.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Log.d(TAG, "onClick: navigating to profile of: " +
-                                    holder.user.getUsername());
-
-                            Intent intent = new Intent(mContext, ProfileActivity.class);
-                            intent.putExtra(mContext.getString(R.string.calling_activity),
-                                    mContext.getString(R.string.home_activity));
-                            intent.putExtra(mContext.getString(R.string.intent_user), holder.user);
-                            mContext.startActivity(intent);
-                        }
-                    });
-
-
-
-                    holder.settings = singleSnapshot.getValue(UserAccountSettings.class);
-                    holder.comment.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            ((HomeActivity)mContext).onCommentThreadSelected(getItem(position),
-                                    mContext.getString(R.string.home_activity));
-
-                            //another thing?
-                            ((HomeActivity)mContext).hideLayout();
-                        }
-                    });
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
+                Intent intent = new Intent(mContext, ProfileActivity.class);
+                intent.putExtra(mContext.getString(R.string.calling_activity),
+                        mContext.getString(R.string.home_activity));
+                intent.putExtra(mContext.getString(R.string.intent_user), holder.user);
+                mContext.startActivity(intent);
             }
         });
+
+        imageLoader.displayImage(BuildConfig.SERVER_URL + "/download/avatar/" + getItem(position).getAvatar_filename(),
+                holder.mprofileImage);
+        holder.mprofileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: navigating to profile of: " +
+                        holder.user.getUsername());
+
+                Intent intent = new Intent(mContext, ProfileActivity.class);
+                intent.putExtra(mContext.getString(R.string.calling_activity),
+                        mContext.getString(R.string.home_activity));
+                intent.putExtra(mContext.getString(R.string.intent_user), holder.user);
+                mContext.startActivity(intent);
+            }
+        });
+
+
+//        holder.settings = singleSnapshot.getValue(UserAccountSettings.class);
+        holder.comment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((HomeActivity) mContext).onCommentThreadSelected(getItem(position),
+                        mContext.getString(R.string.home_activity));
+
+                //another thing?
+                ((HomeActivity) mContext).hideLayout();
+            }
+        });
+
 
         //get the user object
-        Query userQuery = mReference
-                .child(mContext.getString(R.string.dbname_users))
-                .orderByChild(mContext.getString(R.string.field_user_id))
-                .equalTo(getItem(position).getUser_id());
-        userQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot singleSnapshot : dataSnapshot.getChildren()){
-                    Log.d(TAG, "onDataChange: found user: " +
-                    singleSnapshot.getValue(User.class).getUsername());
+//        Query userQuery = mReference
+//                .child(mContext.getString(R.string.dbname_users))
+//                .orderByChild(mContext.getString(R.string.field_user_id))
+//                .equalTo(getItem(position).getUser_id());
+//        userQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
+//                    Log.d(TAG, "onDataChange: found user: " +
+//                            singleSnapshot.getValue(User.class).getUsername());
+//
+//                    holder.user = singleSnapshot.getValue(User.class);
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
 
-                    holder.user = singleSnapshot.getValue(User.class);
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        if(reachedEndOfList(position)){
+        if (reachedEndOfList(position)) {
             loadMoreData();
         }
 
         return convertView;
     }
 
-    private boolean reachedEndOfList(int position){
+    private boolean reachedEndOfList(int position) {
         return position == getCount() - 1;
     }
 
-    private void loadMoreData(){
+    private void loadMoreData() {
 
-        try{
+        try {
             mOnLoadMoreItemsListener = (OnLoadMoreItemsListener) getContext();
-        }catch (ClassCastException e){
-            Log.e(TAG, "loadMoreData: ClassCastException: " +e.getMessage() );
+        } catch (ClassCastException e) {
+            Log.e(TAG, "loadMoreData: ClassCastException: " + e.getMessage());
         }
 
-        try{
+        try {
             mOnLoadMoreItemsListener.onLoadMoreItems();
-        }catch (NullPointerException e){
-            Log.e(TAG, "loadMoreData: ClassCastException: " +e.getMessage() );
+        } catch (NullPointerException e) {
+            Log.e(TAG, "loadMoreData: ClassCastException: " + e.getMessage());
         }
     }
 
-    public class GestureListener extends GestureDetector.SimpleOnGestureListener{
+    public class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
         ViewHolder mHolder;
+
         public GestureListener(ViewHolder holder) {
             mHolder = holder;
         }
@@ -305,15 +292,15 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    for(DataSnapshot singleSnapshot : dataSnapshot.getChildren()){
+                    for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
 
                         String keyID = singleSnapshot.getKey();
 
                         //case1: Then user already liked the photo
-                        if(mHolder.likeByCurrentUser
+                        if (mHolder.likeByCurrentUser
 //                                && singleSnapshot.getValue(Like.class).getUser_id()
 //                                        .equals(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                ){
+                                ) {
 
                             mReference.child(mContext.getString(R.string.dbname_photos))
                                     .child(mHolder.photo.getPhoto_id())
@@ -333,13 +320,13 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
                             getLikesString(mHolder);
                         }
                         //case2: The user has not liked the photo
-                        else if(!mHolder.likeByCurrentUser){
+                        else if (!mHolder.likeByCurrentUser) {
                             //add new like
                             addNewLike(mHolder);
                             break;
                         }
                     }
-                    if(!dataSnapshot.exists()){
+                    if (!dataSnapshot.exists()) {
                         //add new like
                         addNewLike(mHolder);
                     }
@@ -355,7 +342,7 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
         }
     }
 
-    private void addNewLike(final ViewHolder holder){
+    private void addNewLike(final ViewHolder holder) {
         Log.d(TAG, "addNewLike: adding new like");
 
         String newLikeID = mReference.push().getKey();
@@ -379,133 +366,115 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
         getLikesString(holder);
     }
 
-    private void getCurrentUsername(){
+    private void getCurrentUsername() {
         Log.d(TAG, "getCurrentUsername: retrieving user account settings");
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-        Query query = reference
-                .child(mContext.getString(R.string.dbname_users))
-                .orderByChild(mContext.getString(R.string.field_user_id))
-                .equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot singleSnapshot : dataSnapshot.getChildren()){
-                    currentUsername = singleSnapshot.getValue(UserAccountSettings.class).getUsername();
-                }
 
-            }
+        currentUsername = "tiendung";
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
-    private void getLikesString(final ViewHolder holder){
+    private void getLikesString(final ViewHolder holder) {
         Log.d(TAG, "getLikesString: getting likes string");
 
         Log.d(TAG, "getLikesString: photo id: " + holder.photo.getPhoto_id());
-        try{
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-        Query query = reference
-                .child(mContext.getString(R.string.dbname_photos))
-                .child(holder.photo.getPhoto_id())
-                .child(mContext.getString(R.string.field_likes));
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                holder.users = new StringBuilder();
-                for(DataSnapshot singleSnapshot : dataSnapshot.getChildren()){
-
-                    DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-                    Query query = reference
-                            .child(mContext.getString(R.string.dbname_users))
-                            .orderByChild(mContext.getString(R.string.field_user_id))
-                            .equalTo(singleSnapshot.getValue(Like.class).getUser_id());
-                    query.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            for(DataSnapshot singleSnapshot : dataSnapshot.getChildren()){
-                                Log.d(TAG, "onDataChange: found like: " +
-                                        singleSnapshot.getValue(User.class).getUsername());
-
-                                holder.users.append(singleSnapshot.getValue(User.class).getUsername());
-                                holder.users.append(",");
-                            }
-
-                            String[] splitUsers = holder.users.toString().split(",");
-
-                            if(holder.users.toString().contains(currentUsername + ",")){//mitch, mitchell.org
-                                holder.likeByCurrentUser = true;
-                            }else{
-                                holder.likeByCurrentUser = false;
-                            }
-
-                            int length = splitUsers.length;
-                            if(length == 1){
-                                holder.likesString = "Liked by " + splitUsers[0];
-                            }
-                            else if(length == 2){
-                                holder.likesString = "Liked by " + splitUsers[0]
-                                        + " and " + splitUsers[1];
-                            }
-                            else if(length == 3){
-                                holder.likesString = "Liked by " + splitUsers[0]
-                                        + ", " + splitUsers[1]
-                                        + " and " + splitUsers[2];
-
-                            }
-                            else if(length == 4){
-                                holder.likesString = "Liked by " + splitUsers[0]
-                                        + ", " + splitUsers[1]
-                                        + ", " + splitUsers[2]
-                                        + " and " + splitUsers[3];
-                            }
-                            else if(length > 4){
-                                holder.likesString = "Liked by " + splitUsers[0]
-                                        + ", " + splitUsers[1]
-                                        + ", " + splitUsers[2]
-                                        + " and " + (splitUsers.length - 3) + " others";
-                            }
-                            Log.d(TAG, "onDataChange: likes string: " + holder.likesString);
-                            //setup likes string
-                            setupLikesString(holder, holder.likesString);
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-                if(!dataSnapshot.exists()){
-                    holder.likesString = "";
-                    holder.likeByCurrentUser = false;
-                    //setup likes string
-                    setupLikesString(holder, holder.likesString);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        }catch (NullPointerException e){
-            Log.e(TAG, "getLikesString: NullPointerException: " + e.getMessage() );
-            holder.likesString = "";
-            holder.likeByCurrentUser = false;
-            //setup likes string
-            setupLikesString(holder, holder.likesString);
-        }
+        holder.likesString = holder.photo.getLike_count() + " liked";
+        setupLikesString(holder, holder.likesString);
+//        try {
+//            DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+//            Query query = reference
+//                    .child(mContext.getString(R.string.dbname_photos))
+//                    .child(holder.photo.getPhoto_id())
+//                    .child(mContext.getString(R.string.field_likes));
+//            query.addListenerForSingleValueEvent(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(DataSnapshot dataSnapshot) {
+//                    holder.users = new StringBuilder();
+//                    for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
+//
+//                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+//                        Query query = reference
+//                                .child(mContext.getString(R.string.dbname_users))
+//                                .orderByChild(mContext.getString(R.string.field_user_id))
+//                                .equalTo(singleSnapshot.getValue(Like.class).getUser_id());
+//                        query.addListenerForSingleValueEvent(new ValueEventListener() {
+//                            @Override
+//                            public void onDataChange(DataSnapshot dataSnapshot) {
+//                                for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
+//                                    Log.d(TAG, "onDataChange: found like: " +
+//                                            singleSnapshot.getValue(User.class).getUsername());
+//
+//                                    holder.users.append(singleSnapshot.getValue(User.class).getUsername());
+//                                    holder.users.append(",");
+//                                }
+//
+//                                String[] splitUsers = holder.users.toString().split(",");
+//
+//                                if (holder.users.toString().contains(currentUsername + ",")) {//mitch, mitchell.org
+//                                    holder.likeByCurrentUser = true;
+//                                } else {
+//                                    holder.likeByCurrentUser = false;
+//                                }
+//
+//                                int length = splitUsers.length;
+//                                if (length == 1) {
+//                                    holder.likesString = "Liked by " + splitUsers[0];
+//                                } else if (length == 2) {
+//                                    holder.likesString = "Liked by " + splitUsers[0]
+//                                            + " and " + splitUsers[1];
+//                                } else if (length == 3) {
+//                                    holder.likesString = "Liked by " + splitUsers[0]
+//                                            + ", " + splitUsers[1]
+//                                            + " and " + splitUsers[2];
+//
+//                                } else if (length == 4) {
+//                                    holder.likesString = "Liked by " + splitUsers[0]
+//                                            + ", " + splitUsers[1]
+//                                            + ", " + splitUsers[2]
+//                                            + " and " + splitUsers[3];
+//                                } else if (length > 4) {
+//                                    holder.likesString = "Liked by " + splitUsers[0]
+//                                            + ", " + splitUsers[1]
+//                                            + ", " + splitUsers[2]
+//                                            + " and " + (splitUsers.length - 3) + " others";
+//                                }
+//                                Log.d(TAG, "onDataChange: likes string: " + holder.likesString);
+//                                //setup likes string
+//                                setupLikesString(holder, holder.likesString);
+//                            }
+//
+//                            @Override
+//                            public void onCancelled(DatabaseError databaseError) {
+//
+//                            }
+//                        });
+//                    }
+//                    if (!dataSnapshot.exists()) {
+//                        holder.likesString = "";
+//                        holder.likeByCurrentUser = false;
+//                        //setup likes string
+//                        setupLikesString(holder, holder.likesString);
+//                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(DatabaseError databaseError) {
+//
+//                }
+//            });
+//        } catch (NullPointerException e) {
+//            Log.e(TAG, "getLikesString: NullPointerException: " + e.getMessage());
+//            holder.likesString = "";
+//            holder.likeByCurrentUser = false;
+//            //setup likes string
+//            setupLikesString(holder, holder.likesString);
+//        }
     }
 
-    private void setupLikesString(final ViewHolder holder, String likesString){
+    private void setupLikesString(final ViewHolder holder, String likesString) {
         Log.d(TAG, "setupLikesString: likes string:" + holder.likesString);
 
         Log.d(TAG, "setupLikesString: photo id: " + holder.photo.getPhoto_id());
-        if(holder.likeByCurrentUser){
+        if (holder.likeByCurrentUser) {
             Log.d(TAG, "setupLikesString: photo is liked by current user");
             holder.heartWhite.setVisibility(View.GONE);
             holder.heartRed.setVisibility(View.VISIBLE);
@@ -515,7 +484,7 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
                     return holder.detector.onTouchEvent(event);
                 }
             });
-        }else{
+        } else {
             Log.d(TAG, "setupLikesString: photo is not liked by current user");
             holder.heartWhite.setVisibility(View.VISIBLE);
             holder.heartRed.setVisibility(View.GONE);
@@ -531,24 +500,25 @@ public class MainFeedListAdapter extends ArrayAdapter<Photo> {
 
     /**
      * Returns a string representing the number of days ago the post was made
+     *
      * @return
      */
-    private String getTimestampDifference(Photo photo){
+    private String getTimestampDifference(Photo photo) {
         Log.d(TAG, "getTimestampDifference: getting timestamp difference.");
 
         String difference = "";
         Calendar c = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.CANADA);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
         sdf.setTimeZone(TimeZone.getTimeZone("Canada/Pacific"));//google 'android list of timezones'
         Date today = c.getTime();
         sdf.format(today);
         Date timestamp;
         final String photoTimestamp = photo.getDate_created();
-        try{
+        try {
             timestamp = sdf.parse(photoTimestamp);
-            difference = String.valueOf(Math.round(((today.getTime() - timestamp.getTime()) / 1000 / 60 / 60 / 24 )));
-        }catch (ParseException e){
-            Log.e(TAG, "getTimestampDifference: ParseException: " + e.getMessage() );
+            difference = String.valueOf(Math.round(((today.getTime() - timestamp.getTime()) / 1000 / 60 / 60 / 24)));
+        } catch (ParseException e) {
+            Log.e(TAG, "getTimestampDifference: ParseException: " + e.getMessage());
             difference = "0";
         }
         return difference;
