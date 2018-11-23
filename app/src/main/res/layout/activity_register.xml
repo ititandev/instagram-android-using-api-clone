@@ -12,30 +12,30 @@
     android:paddingRight="25dp"
     >
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="REGISTER A NEW ACCOUNT"
-        android:textSize="20sp"
-        android:textColor="@color/black"
-        android:gravity="center_horizontal"
-        android:layout_marginBottom="40dp"/>
-
-
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp">
-
-        <EditText
-            android:id="@+id/input_username"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Username"
-            android:inputType="textEmailAddress" />
+            android:layout_marginBottom="40dp"
+            android:gravity="center_horizontal"
+            android:text="REGISTER A NEW ACCOUNT"
+            android:textColor="@color/black"
+            android:textSize="20sp" />
 
-    </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/input_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Username"
+                android:inputType="textEmailAddress" />
+
+        </android.support.design.widget.TextInputLayout>
 
 
     <android.support.design.widget.TextInputLayout

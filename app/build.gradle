@@ -13,13 +13,17 @@ android {
     buildTypes {
         release {
             buildConfigField "String", 'SERVER_URL', '"http://vre.hcmut.edu.vn/instagram"'
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            buildConfigField "String", 'SERVER_URL', '"http://192.168.56.1:8081"'
-            //buildConfigField "String", 'SERVER_URL', '"http://vre.hcmut.edu.vn/instagram"'
+            //buildConfigField "String", 'SERVER_URL', '"http://192.168.56.1:8081"'
+            buildConfigField "String", 'SERVER_URL', '"http://vre.hcmut.edu.vn/instagram"'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
